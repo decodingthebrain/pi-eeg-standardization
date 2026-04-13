@@ -1,10 +1,10 @@
 import spidev
 import time
-#from RPi import GPIO
+from RPi import GPIO
 from matplotlib import pyplot as plt
 from scipy.ndimage import gaussian_filter1d
 from scipy import signal
-import gpiod
+#import gpiod
 #from importlib.metadata import version
 import net_sender
 import os
@@ -18,23 +18,29 @@ frame_idx = 0
 #GPIO.setwarnings(False) 
 #GPIO.setmode(GPIO.BOARD)
 
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+
 button_pin_1 =  26 #13
 button_pin_2 =  13
 cs_pin = 19
 #chip = gpiod.Chip("gpiochip4")
 #print(version("gpiod"))
-chip = gpiod.chip("0")
+#chip = gpiod.chip("0")
 #chip = gpiod.chip("0")
 #cs_line = chip.get_line(19)  # GPIO19
 #cs_line.request(consumer="SPI_CS", type=gpiod.LINE_REQ_DIR_OUT)
-cs_line = chip.get_line(cs_pin)
-cs_line_out = gpiod.line_request()
-cs_line_out.consumer = "SPI_CS"
-cs_line_out.request_type = gpiod.line_request.DIRECTION_OUTPUT
-cs_line.request(cs_line_out)
+#cs_line = chip.get_line(cs_pin)
+#cs_line_out = gpiod.line_request()
+#cs_line_out.consumer = "SPI_CS"
+#cs_line_out.request_type = gpiod.line_request.DIRECTION_OUTPUT
+#cs_line.request(cs_line_out)
+
+GPIO.setup(cs_pin, GPIO.OUT)
+GPIO.output(cs_pin, GPIO.HIGH)
 
 #cs_line.request(consumer="SPI_CS", type=gpiod.line_request.DIRECTION_OUTPUT)
-cs_line.set_value(1)  # Set CS high initially
+#cs_line.set_value(1)  # Set CS high initially
 
 spi = spidev.SpiDev()
 spi.open(0,0)
@@ -97,16 +103,20 @@ def read_byte_2(register):
  write=0x20
  register_write=write|register
  data = [register_write,0x00,register]
- cs_line.set_value(0)
+ #cs_line.set_value(0)
+ GPIO.output(cs_pin, GPIO.LOW)
  read_reg=spi.xfer(data)
- cs_line.set_value(1)
+ #cs_line.set_value(1)
+ GPIO.output(cs_pin. GPIO.HIGH)
  print ("data", read_reg)
  
 def send_command_2(command):
  send_data = [command]
- cs_line.set_value(0)
+ #cs_line.set_value(0)
+ GPIO.output(cs_pin, GPIO.LOW)
  spi_2.xfer(send_data)
- cs_line.set_value(1)
+ #cs_line.set_value(1)
+ GPIO.output(cs_pin. GPIO.HIGH)
  
 def write_byte_2(register,data):
  write=0x40
@@ -114,9 +124,11 @@ def write_byte_2(register,data):
  data = [register_write,0x00,data]
  print (data)
 
- cs_line.set_value(0)
+ #cs_line.set_value(0)
+ GPIO.output(cs_pin, GPIO.LOW)
  spi_2.xfer(data)
- cs_line.set_value(1)
+ #cs_line.set_value(1)
+ GPIO.output(cs_pin. GPIO.HIGH)
 
  
 
@@ -262,12 +274,15 @@ def _to_signed_24bit(msb: int, middle: int, lsb: int) -> int:
 
 while 1:
         # read ADC1
-        cs_line.set_value(1)
+        #cs_line.set_value(1)
+        GPIO.output(cs_pin. GPIO.HIGH)
         output=spi.readbytes(27)
         # read ADC2
-        cs_line.set_value(0)
+        #cs_line.set_value(0)
+        GPIO.output(cs_pin, GPIO.LOW)
         output_2=spi_2.readbytes(27)
-        cs_line.set_value(1)
+        #cs_line.set_value(1)
+        GPIO.output(cs_pin. GPIO.HIGH)
         
         #hdr1_ok = (len(output) == 27 and output[0] == 0xC0 and output[1] == 0x00 and output[2] == 0x08)
         #hdr2_ok = (len(output_2) == 27 and output_2[0] == 0xC0 and output_2[1] == 0x00 and output_2[2] == 0x08)
