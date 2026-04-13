@@ -69,6 +69,7 @@ def run():
 
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 1024 * 1024)
         sock.bind((HOST, PORT))
         # short timeout ensures loop checks stop_event regularly
         sock.settimeout(0.25)  # periodic wake-ups for GC
