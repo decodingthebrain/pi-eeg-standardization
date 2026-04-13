@@ -268,7 +268,7 @@ def _to_signed_24bit(msb: int, middle: int, lsb: int) -> int:
     # Check the sign bit (bit 7 of the MSB)
     if (msb & 0x80) != 0:
         # Convert to negative 24-bit signed integer
-        combined -= 1 << 24
+        combined -= 1 
 
     return combined
 
@@ -296,17 +296,22 @@ while 1:
 
         if output_2[0]==192 and output_2[1] == 0 and output_2[2] == 8:
             #print ("ok4")
-            for a in range (3,25,3):
-                voltage_1=(output[a]<<8)| output[a+1]
-                voltage_1=(voltage_1<<8)| output[a+2]
-                convert_voktage=voltage_1|data_test
-                if convert_voktage==data_check:
-                    voltage_1_after_convert=(voltage_1-16777214)
-                else:
-                    voltage_1_after_convert=voltage_1
-                channel_num =  (a/3)
+            for a in range (8):
+                start = 3 + (a * 3)
+                raw_int = _to_signed_24bit(output[start], output[start+1], output[start+2])
+                voltage_uv = (raw_int * 4.5) / (8388607.0 * 24) * 1000000
+                result[a] = round(voltage_uv, 2)
+                # change range to 3,25,3
+                #voltage_1=(output[a]<<8)| output[a+1]
+                #voltage_1=(voltage_1<<8)| output[a+2]
+                #convert_voktage=voltage_1|data_test
+                #if convert_voktage==data_check:
+                    #voltage_1_after_convert=(voltage_1-16777214)
+                #else:
+                    #voltage_1_after_convert=voltage_1
+                #channel_num =  (a/3)
 
-                result[int (channel_num)]=round(1000000*4.5*(voltage_1_after_convert/16777215),2)
+                #result[int (channel_num)]=round(1000000*4.5*(voltage_1_after_convert/16777215),2)
 
             data_1ch_test.append(result[1])
             data_2ch_test.append(result[2])
@@ -318,17 +323,21 @@ while 1:
             data_8ch_test.append(result[8])
 
 
-            for a in range (3,25,3):
-                voltage_1=(output_2[a]<<8)| output_2[a+1]
-                voltage_1=(voltage_1<<8)| output_2[a+2]
-                convert_voktage=voltage_1|data_test
-                if convert_voktage==data_check:
-                    voltage_1_after_convert=(voltage_1-16777214)
-                else:
-                    voltage_1_after_convert=voltage_1
-                channel_num =  (a/3)
+            for a in range (8):
+                start = 3 + (a * 3)
+                raw_int_2 = _to_signed_24bit(output_2[start], output_2[start+1], output_2[start+2])
+                voltage_uv_2 = (raw_int_2 * 4.5) / (8388607.0 * 24) * 1000000
+                result_2[a+1] = round(voltage_uv_2, 2)
+                #voltage_1=(output_2[a]<<8)| output_2[a+1]
+                #voltage_1=(voltage_1<<8)| output_2[a+2]
+                #convert_voktage=voltage_1|data_test
+                #if convert_voktage==data_check:
+                    #voltage_1_after_convert=(voltage_1-16777214)
+                #else:
+                    #voltage_1_after_convert=voltage_1
+                #channel_num =  (a/3)
 
-                result_2[int (channel_num)]=round(1000000*4.5*(voltage_1_after_convert/16777215),2)
+                #result_2[int (channel_num)]=round(1000000*4.5*(voltage_1_after_convert/16777215),2)
 
             data_9ch_test.append(result_2[1])
             data_10ch_test.append(result_2[2])
