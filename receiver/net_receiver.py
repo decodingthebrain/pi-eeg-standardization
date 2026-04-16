@@ -8,7 +8,7 @@ import threading
 from collections import defaultdict, deque
 from typing import Dict, Tuple
 
-HOST = os.getenv("EEG_UDP_HOST", "0.0.0.0") # listen on all interfaces by default
+HOST = os.getenv("EEG_UDP_HOST", '') # listen on all interfaces by default
 PORT = int(os.getenv("EEG_UDP_PORT", "50008"))
 OUT_DIR = os.getenv("EEG_OUT_DIR", "inbox")
 FRAME_TIMEOUT_S = float(os.getenv("EEG_FRAME_TIMEOUT_S", "2.0"))  # drop if incomplete after N seconds
@@ -70,10 +70,26 @@ def run():
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 1024 * 1024)
-        sock.bind((HOST, PORT))
+
+        try:
+            # Broadcast is often needed for the .255 address
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+            # Only try this if running with sudo
+            try:
+                sock.setsockopt(socket.SOL_SOCKET, socket.SO_BINDTODEVICE, b'wlan0')
+            except:
+                pass 
+            
+            sock.bind((HOST, PORT))
+        except PermissionError:
+            print(f"Permission Error: Use sudo to bind to {PORT}")
+            return
+
         # short timeout ensures loop checks stop_event regularly
         sock.settimeout(0.25)  # periodic wake-ups for GC
-        print(f"[recv] listening on {HOST}:{PORT}, writing complete frames to {OUT_DIR}/")
+
+        print(f"[recv] listening on {HOST}:{PORT}, writing complete frames to {OUT_DIR}/", flush=True)
+
 
         while not stop_event.is_set():
             # Garbage-collect stale frames
