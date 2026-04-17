@@ -72,14 +72,7 @@ def run():
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 1024 * 1024)
 
         try:
-            # Broadcast is often needed for the .255 address
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-            # Only try this if running with sudo
-            try:
-                sock.setsockopt(socket.SOL_SOCKET, socket.SO_BINDTODEVICE, b'wlan0')
-            except:
-                pass 
-            
             sock.bind((HOST, PORT))
         except PermissionError:
             print(f"Permission Error: Use sudo to bind to {PORT}")
