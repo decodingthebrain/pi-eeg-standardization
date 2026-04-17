@@ -221,7 +221,7 @@ async def brightness_from_inbox_async(strip, inbox_dir="inbox", start_index=0, s
                     v = ch_map.get(ch_key)
                     if not v:
                         continue
-                    gain = max(0.0, min(1.0, (v[sample_idx] / 200.0)))
+                    gain = max(0.0, min(1.0, (v[sample_idx] / 50.0)))
                     for led in range(start, end + 1):
                         if 0 <= led < strip.numPixels():
                             PIXEL_GAINS[led] = gain
@@ -271,7 +271,7 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
     parser.add_argument('--inbox', default='inbox', help='directory where incoming frames like 0.json appear')
     parser.add_argument('--start', type=int, default=0, help='starting frame index to read')
-    parser.add_argument('--sample-ms', type=int, default=6, help='delay in ms between brightness samples within a frame')
+    parser.add_argument('--sample-ms', type=int, default=4, help='delay in ms between brightness samples within a frame')
     parser.add_argument('--poll-ms', type=int, default=100, help='delay in ms when polling for new frames')
     parser.add_argument('--keep-frames', action='store_true', help='do not delete processed inbox frames (default deletes them)')
     parser.add_argument(
