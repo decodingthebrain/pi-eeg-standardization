@@ -23,7 +23,7 @@ SAMPLE_LEN = 160
 FPS = 250
 HISTORY = 250  # number of past samples to give the filters context (~1 s at 250 Hz)
 HIGHCUT = 1
-LOWCUT = 10
+LOWCUT = 40
 
 FRAMES_DIR = "frames"
 os.makedirs(FRAMES_DIR, exist_ok=True)
@@ -215,14 +215,8 @@ class EEGRecorder:
                 
                 display_values = {}
                 for i, win in enumerate(filtered_windows):
-                    # Get Absolute values (remove negatives)
-                    abs_values = [abs(x) for x in win]
-
-                    # Calculate the average strength of the signal in this window
-                    strength = sum(abs_values) / len(abs_values)
-
-                    # Store values for the LED mapper
-                    display_values[str(i+1)] = round(strength, 2)
+                    abs_values = [round(abs(x), 2) for x in win]
+                    display_values[str(i+1)] = abs_values
             
                     
                 frame = {
