@@ -173,3 +173,13 @@ def run():
 def stop():
     """Signal the receiver loop to stop gracefully."""
     stop_event.set()
+
+if __name__ == "__main__":
+    print("Script started! Attempting to listen...", flush=True)
+    try:
+        run()
+    except KeyboardInterrupt:
+        print("\nStopping receiver...")
+        stop()
+    except Exception as e:
+        print(f"Fatal Error: {e}")
